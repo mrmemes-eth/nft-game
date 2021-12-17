@@ -26,21 +26,21 @@ task("deploy", "compiles and deploys the contracts", async (args, hre) => {
 
   console.log("MyEpicGame deployed to:", gameContract.address);
 
-  let txn;
-  txn = await gameContract.mintCharacterNFT(1);
-  await txn.wait();
+  // let txn;
+  // txn = await gameContract.mintCharacterNFT(1);
+  // await txn.wait();
 
-  txn = await gameContract.mintCharacterNFT(0);
-  await txn.wait();
+  // txn = await gameContract.mintCharacterNFT(0);
+  // await txn.wait();
 
-  txn = await gameContract.mintCharacterNFT(2);
-  await txn.wait();
+  // txn = await gameContract.mintCharacterNFT(2);
+  // await txn.wait();
 
-  txn = await gameContract.mintCharacterNFT(1);
-  await txn.wait();
+  // txn = await gameContract.mintCharacterNFT(1);
+  // await txn.wait();
 
-  txn = await gameContract.attackBoss();
-  await txn.wait();
+  // txn = await gameContract.attackBoss();
+  // await txn.wait();
 
   // const tokenURI = await gameContract.tokenURI(1);
   // console.log("Token URI:", tokenURI);

@@ -23,9 +23,6 @@ contract MyEpicGame is ERC721 {
 
     CharacterAttributes[] public defaultCharacters;
 
-    mapping(uint256 => CharacterAttributes) public nftAttributes;
-    mapping(address => uint256) public nftHolders;
-
     struct BigBoss {
         string name;
         string imageURI;
@@ -35,6 +32,12 @@ contract MyEpicGame is ERC721 {
     }
 
     BigBoss public bigBoss;
+
+    mapping(uint256 => CharacterAttributes) public nftAttributes;
+    mapping(address => uint256) public nftHolders;
+
+    event CharacterNFTMinted(address sender, uint256 tokenId, uint256 characterIndex);
+    event AttackComplete(uint32 newBossHp, uint32 newPlayerHp);
 
     constructor(
         string[] memory characterNames,
@@ -100,6 +103,25 @@ contract MyEpicGame is ERC721 {
 
         console.log("Player attacked boss. New boss hp %s", bigBoss.hp);
         console.log("Boss attacked player. New player hp %s\n", player.hp);
+        emit AttackComplete(bigBoss.hp, player.hp);
+    }
+
+    function checkIfUserhasNFT() public view returns (CharacterAttributes memory) {
+        uint256 userNftTokenId = nftHolders[msg.sender];
+        if (userNftTokenId > 0) {
+            return nftAttributes[userNftTokenId];
+        } else {
+            CharacterAttributes memory emptyStruct;
+            return emptyStruct;
+        }
+    }
+
+    function getAllDefaultCharacters() public view returns (CharacterAttributes[] memory) {
+        return defaultCharacters;
+    }
+
+    function getBigBoss() public view returns (BigBoss memory) {
+        return bigBoss;
     }
 
     function mintCharacterNFT(uint256 _characterIndex) external {
@@ -118,6 +140,7 @@ contract MyEpicGame is ERC721 {
         console.log("Minted NFT w/ tokenId %s and characterIndex %s", newItemId, _characterIndex);
         nftHolders[msg.sender] = newItemId;
         _tokenIds.increment();
+        emit CharacterNFTMinted(msg.sender, newItemId, _characterIndex);
     }
 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {

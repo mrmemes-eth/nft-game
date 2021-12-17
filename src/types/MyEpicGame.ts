@@ -17,14 +17,58 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
+export type CharacterAttributesStruct = {
+  characterIndex: BigNumberish;
+  name: string;
+  imageURI: string;
+  hp: BigNumberish;
+  maxHp: BigNumberish;
+  attackDamage: BigNumberish;
+};
+
+export type CharacterAttributesStructOutput = [
+  BigNumber,
+  string,
+  string,
+  number,
+  number,
+  number
+] & {
+  characterIndex: BigNumber;
+  name: string;
+  imageURI: string;
+  hp: number;
+  maxHp: number;
+  attackDamage: number;
+};
+
+export type BigBossStruct = {
+  name: string;
+  imageURI: string;
+  hp: BigNumberish;
+  maxHp: BigNumberish;
+  attackDamage: BigNumberish;
+};
+
+export type BigBossStructOutput = [string, string, number, number, number] & {
+  name: string;
+  imageURI: string;
+  hp: number;
+  maxHp: number;
+  attackDamage: number;
+};
+
 export interface MyEpicGameInterface extends utils.Interface {
   functions: {
     "approve(address,uint256)": FunctionFragment;
     "attackBoss()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "bigBoss()": FunctionFragment;
+    "checkIfUserhasNFT()": FunctionFragment;
     "defaultCharacters(uint256)": FunctionFragment;
+    "getAllDefaultCharacters()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "getBigBoss()": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "mintCharacterNFT(uint256)": FunctionFragment;
     "name()": FunctionFragment;
@@ -50,12 +94,24 @@ export interface MyEpicGameInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "bigBoss", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "checkIfUserhasNFT",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "defaultCharacters",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getAllDefaultCharacters",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getApproved",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getBigBoss",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "isApprovedForAll",
@@ -102,13 +158,22 @@ export interface MyEpicGameInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "bigBoss", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "checkIfUserhasNFT",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "defaultCharacters",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAllDefaultCharacters",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getBigBoss", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
@@ -146,11 +211,15 @@ export interface MyEpicGameInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
+    "AttackComplete(uint32,uint32)": EventFragment;
+    "CharacterNFTMinted(address,uint256,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AttackComplete"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "CharacterNFTMinted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -167,6 +236,21 @@ export type ApprovalForAllEvent = TypedEvent<
 >;
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
+
+export type AttackCompleteEvent = TypedEvent<
+  [number, number],
+  { newBossHp: number; newPlayerHp: number }
+>;
+
+export type AttackCompleteEventFilter = TypedEventFilter<AttackCompleteEvent>;
+
+export type CharacterNFTMintedEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  { sender: string; tokenId: BigNumber; characterIndex: BigNumber }
+>;
+
+export type CharacterNFTMintedEventFilter =
+  TypedEventFilter<CharacterNFTMintedEvent>;
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
@@ -226,6 +310,10 @@ export interface MyEpicGame extends BaseContract {
       }
     >;
 
+    checkIfUserhasNFT(
+      overrides?: CallOverrides
+    ): Promise<[CharacterAttributesStructOutput]>;
+
     defaultCharacters(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -240,10 +328,16 @@ export interface MyEpicGame extends BaseContract {
       }
     >;
 
+    getAllDefaultCharacters(
+      overrides?: CallOverrides
+    ): Promise<[CharacterAttributesStructOutput[]]>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    getBigBoss(overrides?: CallOverrides): Promise<[BigBossStructOutput]>;
 
     isApprovedForAll(
       owner: string,
@@ -344,6 +438,10 @@ export interface MyEpicGame extends BaseContract {
     }
   >;
 
+  checkIfUserhasNFT(
+    overrides?: CallOverrides
+  ): Promise<CharacterAttributesStructOutput>;
+
   defaultCharacters(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -358,10 +456,16 @@ export interface MyEpicGame extends BaseContract {
     }
   >;
 
+  getAllDefaultCharacters(
+    overrides?: CallOverrides
+  ): Promise<CharacterAttributesStructOutput[]>;
+
   getApproved(
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  getBigBoss(overrides?: CallOverrides): Promise<BigBossStructOutput>;
 
   isApprovedForAll(
     owner: string,
@@ -454,6 +558,10 @@ export interface MyEpicGame extends BaseContract {
       }
     >;
 
+    checkIfUserhasNFT(
+      overrides?: CallOverrides
+    ): Promise<CharacterAttributesStructOutput>;
+
     defaultCharacters(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -468,10 +576,16 @@ export interface MyEpicGame extends BaseContract {
       }
     >;
 
+    getAllDefaultCharacters(
+      overrides?: CallOverrides
+    ): Promise<CharacterAttributesStructOutput[]>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    getBigBoss(overrides?: CallOverrides): Promise<BigBossStructOutput>;
 
     isApprovedForAll(
       owner: string,
@@ -568,6 +682,26 @@ export interface MyEpicGame extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
+    "AttackComplete(uint32,uint32)"(
+      newBossHp?: null,
+      newPlayerHp?: null
+    ): AttackCompleteEventFilter;
+    AttackComplete(
+      newBossHp?: null,
+      newPlayerHp?: null
+    ): AttackCompleteEventFilter;
+
+    "CharacterNFTMinted(address,uint256,uint256)"(
+      sender?: null,
+      tokenId?: null,
+      characterIndex?: null
+    ): CharacterNFTMintedEventFilter;
+    CharacterNFTMinted(
+      sender?: null,
+      tokenId?: null,
+      characterIndex?: null
+    ): CharacterNFTMintedEventFilter;
+
     "Transfer(address,address,uint256)"(
       from?: string | null,
       to?: string | null,
@@ -595,15 +729,21 @@ export interface MyEpicGame extends BaseContract {
 
     bigBoss(overrides?: CallOverrides): Promise<BigNumber>;
 
+    checkIfUserhasNFT(overrides?: CallOverrides): Promise<BigNumber>;
+
     defaultCharacters(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getAllDefaultCharacters(overrides?: CallOverrides): Promise<BigNumber>;
+
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getBigBoss(overrides?: CallOverrides): Promise<BigNumber>;
 
     isApprovedForAll(
       owner: string,
@@ -689,8 +829,14 @@ export interface MyEpicGame extends BaseContract {
 
     bigBoss(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    checkIfUserhasNFT(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     defaultCharacters(
       arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAllDefaultCharacters(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -698,6 +844,8 @@ export interface MyEpicGame extends BaseContract {
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getBigBoss(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isApprovedForAll(
       owner: string,
