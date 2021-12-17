@@ -21,6 +21,8 @@ const chainIds = {
   mainnet: 1,
   rinkeby: 4,
   ropsten: 3,
+  "polygon-mainnet": 137,
+  "polygon-mumbai": 80001,
 };
 
 // Ensure that we have all the environment variables we need.
@@ -69,6 +71,8 @@ const config: HardhatUserConfig = {
     kovan: getChainConfig("kovan"),
     rinkeby: getChainConfig("rinkeby"),
     ropsten: getChainConfig("ropsten"),
+    polygonMumbai: getChainConfig("polygon-mumbai"),
+    polygonMainnet: getChainConfig("polygon-mainnet"),
   },
   paths: {
     artifacts: "./artifacts",
