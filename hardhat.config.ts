@@ -26,24 +26,27 @@ const chainIds = {
 // Ensure that we have all the environment variables we need.
 const mnemonic: string | undefined = process.env.MNEMONIC;
 if (!mnemonic) {
-  throw new Error("Please set your MNEMONIC in a .env file");
+  throw new Error("Please set your MNEMONIC in the .env file");
 }
 
-const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
-if (!infuraApiKey) {
-  throw new Error("Please set your INFURA_API_KEY in a .env file");
+const deployApiUrl: string | undefined = process.env.DEPLOY_API_URL;
+if (!deployApiUrl) {
+  throw new Error("Please set your DEPLOY_API_URL in a .env file");
 }
+
+// optional environment variables
+const initialIndex: string | undefined = process.env.BIP_39_INITIAL_INDEX;
 
 function getChainConfig(network: keyof typeof chainIds): NetworkUserConfig {
-  const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
   return {
     accounts: {
       count: 10,
       mnemonic,
+      initialIndex: initialIndex ? parseInt(initialIndex) : 0,
       path: "m/44'/60'/0'/0",
     },
     chainId: chainIds[network],
-    url,
+    url: deployApiUrl,
   };
 }
 

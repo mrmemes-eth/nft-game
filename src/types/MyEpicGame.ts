@@ -20,7 +20,9 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export interface MyEpicGameInterface extends utils.Interface {
   functions: {
     "approve(address,uint256)": FunctionFragment;
+    "attackBoss()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "bigBoss()": FunctionFragment;
     "defaultCharacters(uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
@@ -41,7 +43,12 @@ export interface MyEpicGameInterface extends utils.Interface {
     functionFragment: "approve",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "attackBoss",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(functionFragment: "bigBoss", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "defaultCharacters",
     values: [BigNumberish]
@@ -91,7 +98,9 @@ export interface MyEpicGameInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "attackBoss", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "bigBoss", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "defaultCharacters",
     data: BytesLike
@@ -199,7 +208,23 @@ export interface MyEpicGame extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    attackBoss(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     balanceOf(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    bigBoss(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, number, number, number] & {
+        name: string;
+        imageURI: string;
+        hp: number;
+        maxHp: number;
+        attackDamage: number;
+      }
+    >;
 
     defaultCharacters(
       arg0: BigNumberish,
@@ -301,7 +326,23 @@ export interface MyEpicGame extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  attackBoss(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  bigBoss(
+    overrides?: CallOverrides
+  ): Promise<
+    [string, string, number, number, number] & {
+      name: string;
+      imageURI: string;
+      hp: number;
+      maxHp: number;
+      attackDamage: number;
+    }
+  >;
 
   defaultCharacters(
     arg0: BigNumberish,
@@ -397,7 +438,21 @@ export interface MyEpicGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    attackBoss(overrides?: CallOverrides): Promise<void>;
+
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    bigBoss(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, number, number, number] & {
+        name: string;
+        imageURI: string;
+        hp: number;
+        maxHp: number;
+        attackDamage: number;
+      }
+    >;
 
     defaultCharacters(
       arg0: BigNumberish,
@@ -532,7 +587,13 @@ export interface MyEpicGame extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    attackBoss(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    bigBoss(overrides?: CallOverrides): Promise<BigNumber>;
 
     defaultCharacters(
       arg0: BigNumberish,
@@ -617,10 +678,16 @@ export interface MyEpicGame extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    attackBoss(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     balanceOf(
       owner: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    bigBoss(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     defaultCharacters(
       arg0: BigNumberish,

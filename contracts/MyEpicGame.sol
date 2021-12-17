@@ -26,12 +26,34 @@ contract MyEpicGame is ERC721 {
     mapping(uint256 => CharacterAttributes) public nftAttributes;
     mapping(address => uint256) public nftHolders;
 
+    struct BigBoss {
+        string name;
+        string imageURI;
+        uint32 hp;
+        uint32 maxHp;
+        uint32 attackDamage;
+    }
+
+    BigBoss public bigBoss;
+
     constructor(
         string[] memory characterNames,
         string[] memory characterImageURIs,
         uint32[] memory characterHp,
-        uint32[] memory characterAttackDmg
+        uint32[] memory characterAttackDmg,
+        string memory bossName,
+        string memory bossImageURI,
+        uint32 bossHp,
+        uint32 bossAttackDamage
     ) ERC721("Heroes", "HERO") {
+        bigBoss = BigBoss({
+            name: bossName,
+            imageURI: bossImageURI,
+            hp: bossHp,
+            maxHp: bossHp,
+            attackDamage: bossAttackDamage
+        });
+
         for (uint256 i = 0; i < characterNames.length; i++) {
             defaultCharacters.push(
                 CharacterAttributes({
@@ -48,6 +70,36 @@ contract MyEpicGame is ERC721 {
             console.log("Done initializing %s w/ HP %s, img %s", c.name, c.hp, c.imageURI);
         }
         _tokenIds.increment();
+    }
+
+    function attackBoss() public {
+        uint256 tokenIdOfPlayer = nftHolders[msg.sender];
+        CharacterAttributes storage player = nftAttributes[tokenIdOfPlayer];
+        console.log(
+            "\nPlayer w/ character %s is about to attack. Has %s HP and %s AD",
+            player.name,
+            player.hp,
+            player.attackDamage
+        );
+        console.log("Boss %s has %s HP and %s AD", bigBoss.name, bigBoss.hp, bigBoss.attackDamage);
+
+        require(player.hp > 0, "Error: character must have HP to attack boss.");
+        require(bigBoss.hp > 0, "Error: boss must have HP to attack boss.");
+
+        if (bigBoss.hp < player.attackDamage) {
+            bigBoss.hp = 0;
+        } else {
+            bigBoss.hp = bigBoss.hp - player.attackDamage;
+        }
+
+        if (player.hp < bigBoss.attackDamage) {
+            player.hp = 0;
+        } else {
+            player.hp = player.hp - bigBoss.attackDamage;
+        }
+
+        console.log("Player attacked boss. New boss hp %s", bigBoss.hp);
+        console.log("Boss attacked player. New player hp %s\n", player.hp);
     }
 
     function mintCharacterNFT(uint256 _characterIndex) external {
@@ -78,7 +130,7 @@ contract MyEpicGame is ERC721 {
         string memory json = Base64.encode(
             bytes(
                 string(
-                    // solhint-disable quotes
+                    // solhint-disable quotes, max-line-length
                     abi.encodePacked(
                         '{"name": "',
                         charAttributes.name,
@@ -94,7 +146,7 @@ contract MyEpicGame is ERC721 {
                         strAttackDamage,
                         "} ]}"
                     )
-                    // solhint-enable quotes
+                    // solhint-enable quotes, max-line-length
                 )
             )
         );
